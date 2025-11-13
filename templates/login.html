@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}登录 - 图片分享应用{% endblock %}
+
+{% block content %}
+<h2>用户登录</h2>
+<form method="POST">
+    <div style="margin: 10px 0;">
+        <label>用户名:</label><br>
+        <input type="text" name="username" required style="padding: 8px; width: 300px;">
+    </div>
+    <div style="margin: 10px 0;">
+        <label>密码:</label><br>
+        <input type="password" name="password" required style="padding: 8px; width: 300px;">
+    </div>
+    <button type="submit" style="background: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 5px;">登录</button>
+</form>
+<p style="margin-top: 20px;">
+    还没有账户？ <a href="{{ url_for('main.register') }}">立即注册</a>
+</p>
+{% endblock %}

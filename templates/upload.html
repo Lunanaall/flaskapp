@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}上传图片 - 图片分享应用{% endblock %}
+
+{% block content %}
+<h2>上传图片</h2>
+
+<div style="max-width: 600px;">
+    <form method="POST" enctype="multipart/form-data">
+        <div style="margin: 15px 0;">
+            <label for="image">选择图片:</label><br>
+            <input type="file" name="image" id="image" accept="image/*" required
+                   style="margin-top: 5px; padding: 10px; border: 2px dashed #ccc; width: 100%;">
+            <small>支持格式: PNG, JPG, JPEG, GIF, BMP, WEBP</small>
+        </div>
+
+        <div style="margin: 15px 0;">
+            <label for="caption">图片描述 (可选):</label><br>
+            <textarea name="caption" id="caption" rows="3"
+                      style="width: 100%; padding: 8px; margin-top: 5px;"
+                      placeholder="为您的图片添加描述..."></textarea>
+        </div>
+
+        <button type="submit"
+                style="background: #007bff; color: white; padding: 12px 30px; border: none; border-radius: 5px; cursor: pointer;">
+            上传图片
+        </button>
+    </form>
+</div>
+
+<div style="margin-top: 30px;">
+    <a href="{{ url_for('main.user_images') }}"
+       style="background: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+       查看我的图片
+    </a>
+</div>
+{% endblock %}

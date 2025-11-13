@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}注册 - 图片分享应用{% endblock %}
+
+{% block content %}
+<h2>用户注册</h2>
+<form method="POST">
+    <div style="margin: 10px 0;">
+        <label>用户名:</label><br>
+        <input type="text" name="username" required style="padding: 8px; width: 300px;">
+    </div>
+    <div style="margin: 10px 0;">
+        <label>密码:</label><br>
+        <input type="password" name="password" required style="padding: 8px; width: 300px;">
+    </div>
+    <button type="submit" style="background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px;">注册</button>
+</form>
+<p style="margin-top: 20px;">
+    已有账户？ <a href="{{ url_for('main.login') }}">立即登录</a>
+</p>
+{% endblock %}

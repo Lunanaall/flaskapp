@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}首页 - 图片分享应用{% endblock %}
+
+{% block content %}
+<h1>欢迎来到图片分享应用</h1>
+<p>这是一个基于 Flask 和 Azure 的图片分享平台</p>
+
+{% if not current_user.is_authenticated %}
+<div style="margin: 20px 0;">
+    <h3>开始使用：</h3>
+    <a href="{{ url_for('main.register') }}" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-right: 10px;">
+        注册新账户
+    </a>
+    <a href="{{ url_for('main.login') }}" style="background: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+        登录
+    </a>
+</div>
+{% else %}
+<div style="margin: 20px 0;">
+    <h3>欢迎回来, {{ current_user.username }}!</h3>
+    <p>您已成功登录系统。</p>
+    
+    <div style="margin: 20px 0;">
+        <h4>快速操作：</h4>
+        <a href="{{ url_for('main.upload_image') }}" 
+           style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-right: 10px;">
+            📷 上传图片
+        </a>
+        <a href="{{ url_for('main.user_images') }}" 
+           style="background: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-right: 10px;">
+            🖼️ 我的图片
+        </a>
+        <a href="{{ url_for('main.gallery') }}" 
+           style="background: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+            🌟 浏览画廊
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 5px;">
+    <h4>系统状态：</h4>
+    <ul>
+        <li>✅ Flask 应用运行正常</li>
+        <li>✅ PostgreSQL 数据库连接正常</li>
+        <li>✅ Azure Blob Storage 连接正常</li>
+        <li>✅ 用户认证系统工作正常</li>
+    </ul>
+</div>
+{% endblock %}
