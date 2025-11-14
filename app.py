@@ -54,7 +54,7 @@ main_bp = Blueprint('main', __name__)
 # index route
 @main_bp.route('/')
 def index():
-    # 获取所有图片用于主页展示
+    # get all images showing in indnex.html
     images = Image.query.order_by(Image.imageID.desc()).all()
     return render_template('index.html', images=images)
 
@@ -79,7 +79,7 @@ def register():
             db.session.add(new_user)
             db.session.commit()
 
-            # 注册成功后自动登录
+            
             login_user(new_user)
             return jsonify({'success': True, 'message': 'Registration successful!', 'redirect': url_for('main.user_images')})
 
@@ -169,10 +169,10 @@ def upload_image():
             flash('Unsupported image format')
             return redirect(url_for('main.index'))
 
-# images route - 修复：移除 @login_required，手动检查登录状态
+# images route - 
 @main_bp.route('/images')
 def user_images():
-    # 手动检查登录状态，但不使用自动重定向
+    
     if not current_user.is_authenticated:
         flash('Please login to view your images')
         return redirect(url_for('main.index'))
@@ -186,7 +186,7 @@ def gallery():
     images = Image.query.order_by(Image.imageID.desc()).all()
     return render_template('gallery.html', images=images)
 
-# 检查认证状态的API
+
 @main_bp.route('/api/check-auth')
 def check_auth():
     return jsonify({
