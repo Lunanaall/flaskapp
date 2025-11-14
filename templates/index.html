@@ -1,51 +1,99 @@
 {% extends "base.html" %}
 
-{% block title %}首页 - 图片分享应用{% endblock %}
-
 {% block content %}
-<h1>欢迎来到图片分享应用</h1>
-<p>这是一个基于 Flask 和 Azure 的图片分享平台</p>
-
-{% if not current_user.is_authenticated %}
-<div style="margin: 20px 0;">
-    <h3>开始使用：</h3>
-    <a href="{{ url_for('main.register') }}" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-right: 10px;">
-        注册新账户
-    </a>
-    <a href="{{ url_for('main.login') }}" style="background: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-        登录
-    </a>
+<div class="page-header">
+    <h1>🐾 Public Gallery - Pet's Adorable Moments</h1>
 </div>
-{% else %}
-<div style="margin: 20px 0;">
-    <h3>欢迎回来, {{ current_user.username }}!</h3>
-    <p>您已成功登录系统。</p>
-    
-    <div style="margin: 20px 0;">
-        <h4>快速操作：</h4>
-        <a href="{{ url_for('main.upload_image') }}" 
-           style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-right: 10px;">
-            📷 上传图片
-        </a>
-        <a href="{{ url_for('main.user_images') }}" 
-           style="background: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-right: 10px;">
-            🖼️ 我的图片
-        </a>
-        <a href="{{ url_for('main.gallery') }}" 
-           style="background: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-            🌟 浏览画廊
-        </a>
+
+<!-- 图片网格 -->
+<div class="image-grid">
+    {% for image in images %}
+    <div class="gallery-item"
+         data-original-url="{{ image.originalURL }}"
+         data-caption="{{ image.caption or 'Pet Image' }}">
+        <!-- 显示缩略图，点击查看原图 -->
+        <img src="{{ image.thumbnailURL or image.originalURL }}"
+             alt="{{ image.caption or 'Pet Image' }}"
+             onerror="this.src='{{ url_for('static', filename='images/placeholder.svg') }}'"
+             class="thumbnail">
+        <div class="image-info">
+            {% if image.caption %}
+            <p class="image-caption">{{ image.caption }}</p>
+            {% endif %}
+            <div class="image-meta">
+                <small>Shared by User #{{ image.ownerUserID }}</small>
+            </div>
+        </div>
     </div>
+    {% else %}
+    <div class="empty-state">
+        <div style="text-align: center; padding: 3rem;">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">🐱</div>
+            <h3>No images yet</h3>
+            <p>Be the first to share your pet's adorable moment!</p>
+        </div>
+    </div>
+    {% endfor %}
 </div>
-{% endif %}
 
-<div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 5px;">
-    <h4>系统状态：</h4>
-    <ul>
-        <li>✅ Flask 应用运行正常</li>
-        <li>✅ PostgreSQL 数据库连接正常</li>
-        <li>✅ Azure Blob Storage 连接正常</li>
-        <li>✅ 用户认证系统工作正常</li>
-    </ul>
-</div>
+<style>
+.page-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 2rem 0;
+}
+
+.page-header h1 {
+    color: var(--text-gray);
+    margin-bottom: 0.5rem;
+    font-size: 2.5rem;
+}
+
+.page-header p {
+    color: var(--text-gray);
+    opacity: 0.8;
+    font-size: 1.1rem;
+}
+
+.gallery-item {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gallery-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.thumbnail {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px 8px 0 0;
+}
+
+.image-caption {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: var(--text-gray);
+}
+
+.image-meta {
+    border-top: 1px solid var(--border-gray);
+    padding-top: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.image-meta small {
+    color: #888;
+    font-size: 0.8rem;
+}
+
+.empty-state {
+    grid-column: 1 / -1;
+    background: var(--light-gray);
+    border-radius: 10px;
+    border: 2px dashed var(--border-gray);
+}
+</style>
 {% endblock %}

@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash, Blueprint
+from flask import Flask, render_template, request, redirect, url_for, flash, Blueprint, jsonify
 from dotenv import load_dotenv
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
@@ -20,7 +20,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'main.login'
 
-# 数据模型
+# data model
 class User(UserMixin, db.Model):
     __tablename__ = 'User Data'
     userID = db.Column('userid', db.Integer, primary_key=True)
@@ -48,26 +48,30 @@ class Image(db.Model):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# 创建统一的主蓝图
+# create unit blueprint
 main_bp = Blueprint('main', __name__)
 
-# 首页
+# index route
 @main_bp.route('/')
 def index():
-    return render_template('index.html')
+    # 获取所有图片用于主页展示
+    images = Image.query.order_by(Image.imageID.desc()).all()
+    return render_template('index.html', images=images)
 
-# 认证路由
-@main_bp.route('/register', methods=['GET', 'POST'])
+# register route
+@main_bp.route('/register', methods=['POST'])
 def register():
     if request.method == 'POST':
         try:
             username = request.form.get('username')
             password = request.form.get('password')
 
+            if not username or not password:
+                return jsonify({'success': False, 'message': 'Username and password are required'})
+
             existing_user = User.query.filter_by(username=username).first()
             if existing_user:
-                flash('用户名已存在')
-                return render_template('register.html')
+                return jsonify({'success': False, 'message': 'Username already exists'})
 
             new_user = User(username=username)
             new_user.set_password(password)
@@ -75,64 +79,54 @@ def register():
             db.session.add(new_user)
             db.session.commit()
 
-            flash('注册成功！请登录')
-            return redirect(url_for('main.login'))
+            # 注册成功后自动登录
+            login_user(new_user)
+            return jsonify({'success': True, 'message': 'Registration successful!', 'redirect': url_for('main.user_images')})
 
         except Exception as e:
             db.session.rollback()
-            flash(f'注册失败: {str(e)}')
-            return render_template('register.html')
+            return jsonify({'success': False, 'message': f'Registration failed: {str(e)}'})
 
-    return render_template('register.html')
-
-@main_bp.route('/login', methods=['GET', 'POST'])
+# login route
+@main_bp.route('/login', methods=['POST'])
 def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
 
+        if not username or not password:
+            return jsonify({'success': False, 'message': 'Username and password are required'})
+
         user = User.query.filter_by(username=username).first()
 
         if user and user.check_password(password):
             login_user(user)
-            flash('登录成功！')
-            return redirect(url_for('main.index'))
+            return jsonify({'success': True, 'message': 'Login successful!', 'redirect': url_for('main.user_images')})
         else:
-            flash('用户名或密码错误')
+            return jsonify({'success': False, 'message': 'Invalid username or password'})
 
-    return render_template('login.html')
-
+# logout route
 @main_bp.route('/logout')
 @login_required
 def logout():
     logout_user()
-    flash('已退出登录')
+    flash('Good Bye')
     return redirect(url_for('main.index'))
 
-@main_bp.route('/profile')
-@login_required
-def profile():
-    return render_template('profile.html')
-
-# 图片上传功能
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'}
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-@main_bp.route('/upload', methods=['GET', 'POST'])
+# upload route
+@main_bp.route('/upload', methods=['POST'])
 @login_required
 def upload_image():
     if request.method == 'POST':
         if 'image' not in request.files:
-            flash('请选择要上传的图片')
-            return render_template('upload.html')
+            flash('Choose Image')
+            return redirect(url_for('main.index'))
 
         file = request.files['image']
 
         if file.filename == '':
-            flash('请选择要上传的图片')
-            return render_template('upload.html')
+            flash('Choose Image')
+            return redirect(url_for('main.index'))
 
         if file and allowed_file(file.filename):
             try:
@@ -140,7 +134,7 @@ def upload_image():
                 file_extension = original_filename.rsplit('.', 1)[1].lower()
                 unique_filename = f"{uuid.uuid4()}.{file_extension}"
 
-                # 上传到Azure Blob Storage
+                # upload to Azure Blob Storage
                 connection_string = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
                 blob_service_client = BlobServiceClient.from_connection_string(connection_string)
 
@@ -153,45 +147,62 @@ def upload_image():
                 original_blob_client.upload_blob(file_content, overwrite=True)
                 original_url = original_blob_client.url
 
-                # 创建图片记录
+                # create image record
                 new_image = Image(
                     caption=request.form.get('caption', ''),
                     ownerUserID=current_user.userID,
                     originalURL=original_url,
-                    thumbnailURL=original_url
+                    thumbnailURL=None
                 )
 
                 db.session.add(new_image)
                 db.session.commit()
 
-                flash('图片上传成功！')
+                flash('Upload Successfully!')
                 return redirect(url_for('main.user_images'))
 
             except Exception as e:
                 db.session.rollback()
-                flash(f'上传失败: {str(e)}')
-                return render_template('upload.html')
+                flash(f'Upload Failure: {str(e)}')
+                return redirect(url_for('main.index'))
         else:
-            flash('不支持的文件类型')
-            return render_template('upload.html')
+            flash('Unsupported image format')
+            return redirect(url_for('main.index'))
 
-    return render_template('upload.html')
-
+# images route - 修复：移除 @login_required，手动检查登录状态
 @main_bp.route('/images')
-@login_required
 def user_images():
+    # 手动检查登录状态，但不使用自动重定向
+    if not current_user.is_authenticated:
+        flash('Please login to view your images')
+        return redirect(url_for('main.index'))
+    
     images = Image.query.filter_by(ownerUserID=current_user.userID).order_by(Image.imageID.desc()).all()
     return render_template('images.html', images=images)
 
+# gallery route
 @main_bp.route('/gallery')
 def gallery():
     images = Image.query.order_by(Image.imageID.desc()).all()
     return render_template('gallery.html', images=images)
 
-# 注册蓝图
+# 检查认证状态的API
+@main_bp.route('/api/check-auth')
+def check_auth():
+    return jsonify({
+        'authenticated': current_user.is_authenticated,
+        'username': current_user.username if current_user.is_authenticated else None
+    })
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# register blueprint
 app.register_blueprint(main_bp)
 
-# 创建数据库表
+# create database table
 with app.app_context():
     db.create_all()
 

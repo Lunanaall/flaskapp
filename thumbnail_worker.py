@@ -6,16 +6,16 @@ from PIL import Image
 import io
 from dotenv import load_dotenv
 
-# 添加项目路径
+# Add project path
 sys.path.append('/var/www/flaskapp')
 
 load_dotenv()
 
 def generate_thumbnails():
-    print("开始生成缩略图...")
-    
+    print("Starting thumbnail generation...")
+
     try:
-        # 连接数据库
+        # Connect to database
         conn = psycopg2.connect(
             host=os.getenv('DB_HOST'),
             database=os.getenv('DB_NAME'),
@@ -23,84 +23,84 @@ def generate_thumbnails():
             password=os.getenv('DB_PASSWORD'),
             sslmode='require'
         )
-        
-        # 获取需要处理缩略图的图片（thumbnailURL = originalURL 的图片）
+
+        # 修改查询条件：查找 thumbnailURL 为 NULL 或空字符串的图片
         cursor = conn.cursor()
-        cursor.execute('SELECT imageid, originalurl FROM "Image Metadata" WHERE thumbnailurl = originalurl')
+        cursor.execute('SELECT imageid, originalurl FROM "Image Metadata" WHERE thumbnailurl IS NULL OR thumbnailurl = \'\'')
         pending_images = cursor.fetchall()
-        
-        print(f"找到 {len(pending_images)} 个需要处理缩略图的图片")
-        
-        # 连接 Azure Blob Storage
+
+        print(f"Found {len(pending_images)} images needing thumbnail processing")
+
+        # Connect to Azure Blob Storage
         connection_string = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
         blob_service_client = BlobServiceClient.from_connection_string(connection_string)
-        
+
         processed_count = 0
-        
+
         for image_id, original_url in pending_images:
             try:
-                print(f"处理图片 ID: {image_id}")
-                
-                # 从URL中提取文件名
+                print(f"Processing image ID: {image_id}")
+
+                # Extract filename from URL
                 original_filename = original_url.split('/')[-1]
-                
-                # 从 originals 容器下载原图
+
+                # Download original image from originals container
                 original_blob_client = blob_service_client.get_blob_client(
                     container="originals",
                     blob=original_filename
                 )
-                
-                # 下载图片数据
+
+                # Download image data
                 download_stream = original_blob_client.download_blob()
                 image_data = download_stream.readall()
-                
-                # 使用PIL处理图片
+
+                # Process image with PIL
                 with Image.open(io.BytesIO(image_data)) as img:
-                    # 调整大小为150像素宽度，保持宽高比
+                    # Resize to 150px width, maintain aspect ratio
                     img.thumbnail((150, 150))
-                    
-                    # 保存为JPEG格式（减少文件大小）
+
+                    # Save as JPEG format (reduce file size)
                     output_buffer = io.BytesIO()
                     if img.mode in ('RGBA', 'LA'):
-                        # 如果图片有透明通道，转换为RGB
+                        # Convert images with transparency to RGB
                         background = Image.new('RGB', img.size, (255, 255, 255))
                         background.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
                         img = background
-                    
+
                     img.save(output_buffer, format='JPEG', quality=85)
                     output_buffer.seek(0)
-                    
-                    # 上传缩略图到 thumbnails 容器
+
+                    # Upload thumbnail to thumbnails container
                     thumbnail_filename = f"thumb_{original_filename.split('.')[0]}.jpg"
                     thumbnail_blob_client = blob_service_client.get_blob_client(
                         container="thumbnails",
                         blob=thumbnail_filename
                     )
-                    
+
                     thumbnail_blob_client.upload_blob(output_buffer.read(), overwrite=True)
                     thumbnail_url = thumbnail_blob_client.url
-                    
-                    # 更新数据库中的缩略图URL
+
+                    # Update thumbnail URL in database
                     update_cursor = conn.cursor()
                     update_cursor.execute(
                         'UPDATE "Image Metadata" SET thumbnailurl = %s WHERE imageid = %s',
                         (thumbnail_url, image_id)
                     )
                     conn.commit()
-                    
-                    print(f"✅ 成功生成缩略图: {thumbnail_filename}")
+
+                    print(f"✅ Successfully generated thumbnail: {thumbnail_filename}")
                     processed_count += 1
-                    
+
             except Exception as e:
-                print(f"❌ 处理图片 {image_id} 时出错: {str(e)}")
+                print(f"❌ Error processing image {image_id}: {str(e)}")
                 conn.rollback()
                 continue
-        
-        print(f"缩略图生成完成！成功处理 {processed_count} 个图片")
-        
+
+        print(f"Thumbnail generation completed! Successfully processed {processed_count} images")
+
     except Exception as e:
-        print(f"❌ 缩略图生成失败: {str(e)}")
-    
+        print(f"❌ Thumbnail generation failed: {str(e)}")
+
     finally:
         if 'conn' in locals():
             conn.close()

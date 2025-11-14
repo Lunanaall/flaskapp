@@ -1,47 +1,450 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>{% block title %}图片分享应用{% endblock %}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FurryFriends - Share Your Pet's Adorable Moments</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
-        .nav { background: #333; padding: 10px; margin-bottom: 20px; border-radius: 5px; }
-        .nav a { color: white; text-decoration: none; margin: 0 15px; }
-        .nav a:hover { text-decoration: underline; }
-        .flash-messages { margin: 10px 0; }
-        .flash { padding: 10px; border-radius: 5px; margin: 10px 0; }
-        .flash-success { background: #d4edda; color: #155724; }
-        .flash-error { background: #f8d7da; color: #721c24; }
-        .content { margin: 20px 0; }
+        /* 全局黑色加粗字体 */
+        body {
+            font-weight: bold;
+            color: #000;
+        }
+
+        /* 全局弹窗样式 - 新设计 */
+        #globalPopup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85); /* 半透明黑色背景 */
+            color: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            z-index: 10000;
+            border: 3px solid #000; /* 黑色粗边框 */
+            text-align: center;
+            font-weight: bold; /* 粗体字 */
+            font-size: 1.1rem;
+        }
+
+        #popupMessage {
+            font-weight: bold;
+            color: white;
+        }
+
+        .modal {
+            z-index: 9999;
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            position: relative;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #333;
+        }
+
+        /* Flash消息样式 - 统一新样式 */
+        .flash-message {
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            border: 3px solid #000;
+            text-align: center;
+            font-weight: bold;
+            margin: 10px 0;
+            transition: opacity 0.5s ease;
+        }
+
+        /* 导航栏样式 */
+        .navbar {
+            background: #2c3e50; /* 导航栏背景色 */
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .nav-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white; /* 白色字体 */
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: 1rem;
+        }
+
+        .nav-link {
+            color: white; /* 白色字体 */
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 0;
+            transition: all 0.3s ease;
+            font-weight: bold; /* 加粗 */
+            border: 2px solid transparent; /* 透明边框 */
+        }
+
+        /* 悬停效果 - 椭圆形框，字体变黑色，边框变黑色 */
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid #000; /* 黑色边框 */
+            border-radius: 25px;
+            transform: scale(1.05);
+            color: #000 !important; /* 黑色字体 */
+        }
+
+        /* 活动页面效果 - 字体变黑色，边框变黑色 */
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.3);
+            border: 2px solid #000; /* 黑色边框 */
+            border-radius: 25px;
+            color: #000 !important; /* 黑色字体 */
+        }
+
+        /* 上传模态框使用导航栏样式 */
+        #uploadModal .modal-content {
+            max-width: 500px;
+            width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            margin: 20px;
+            background: #2c3e50; /* 导航栏背景色 */
+            color: white; /* 白色字体 */
+        }
+
+        /* 上传区域使用导航栏样式的虚线 */
+        .upload-area {
+            min-height: 120px;
+            padding: 2rem 1rem;
+            cursor: pointer;
+            border: 2px dashed #2c3e50; /* 导航栏背景色的虚线 */
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1); /* 半透明背景 */
+            text-align: center;
+            transition: all 0.3s ease;
+            color: white; /* 白色字体 */
+        }
+
+        .upload-area:hover {
+            transform: scale(1.02);
+            border-color: #34495e; /* 稍深的导航栏颜色 */
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #34495e;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.9);
+            color: #000;
+        }
+
+        textarea.form-control {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        /* 上传按钮使用导航栏样式 */
+        .btn-primary {
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            background: #34495e; /* 导航栏深色 */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: #2c3e50; /* 导航栏主色 */
+            transform: scale(1.02);
+        }
+
+        /* 上传模态框内的标签样式 */
+        #uploadModal label {
+            color: white;
+            font-weight: bold;
+        }
+
+        /* 文件预览样式 */
+        .file-item {
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .file-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        #fileThumbnail:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* 图片模态框样式 */
+        .image-modal-content {
+            max-width: 95vw;
+            max-height: 95vh;
+            width: auto;
+            height: auto;
+            margin: 2rem auto;
+            text-align: center;
+            position: relative;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .image-modal-content img {
+            max-width: 90vw;
+            max-height: 80vh;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            cursor: pointer;
+        }
+
+        /* 确保在移动端也有良好显示 */
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                gap: 0.5rem;
+            }
+            
+            .nav-link {
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
+
+            #uploadModal .modal-content {
+                width: 95vw;
+                margin: 10px;
+                padding: 1.5rem;
+            }
+
+            .upload-area {
+                min-height: 100px;
+                padding: 1.5rem 0.5rem;
+            }
+
+            .upload-icon {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #uploadModal .modal-content {
+                padding: 1rem;
+            }
+
+            .upload-area {
+                min-height: 80px;
+                padding: 1rem 0.5rem;
+            }
+
+            .form-control {
+                padding: 0.6rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="nav">
-            <a href="{{ url_for('main.index') }}">首页</a>
-            {% if current_user.is_authenticated %}
-                <a href="{{ url_for('main.logout') }}">退出 ({{ current_user.username }})</a>
-            {% else %}
-                <a href="{{ url_for('main.login') }}">登录</a>
-                <a href="{{ url_for('main.register') }}">注册</a>
-            {% endif %}
-        </div>
-
-        <div class="flash-messages">
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="flash flash-success">{{ message }}</div>
-                    {% endfor %}
+    <!-- 固定导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('main.index') }}" class="nav-brand" id="homeLink">FurryFriends</a>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('main.index') }}" class="nav-link {% if request.endpoint == 'main.index' %}active{% endif %}" id="homeNavLink">Home</a></li>
+                <li><a href="{{ url_for('main.user_images') }}" class="nav-link {% if request.endpoint == 'main.user_images' %}active{% endif %}" id="myImagesLink">MyImages</a></li>
+                <li><a href="#" class="nav-link" id="uploadLink">Upload</a></li>
+                {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('main.logout') }}" class="nav-link">Logout ({{ current_user.username }})</a></li>
+                {% else %}
+                    <li><a href="#" class="nav-link" id="loginLink">Login</a></li>
                 {% endif %}
-            {% endwith %}
+            </ul>
         </div>
+    </nav>
 
-        <div class="content">
-            {% block content %}
-            <!-- 页面具体内容在这里 -->
-            {% endblock %}
+    <!-- 全局弹窗 -->
+    <div id="globalPopup">
+        <span id="popupMessage"></span>
+    </div>
+
+    <!-- 主内容区域 -->
+    <main class="main-content">
+        <div class="container">
+            <div id="flashMessages">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="flash-message">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- 登录模态框 -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" data-modal="loginModal">&times;</span>
+            <h2>Login to FurryFriends</h2>
+            <form id="loginForm" method="POST" action="{{ url_for('main.login') }}">
+                <div class="form-group">
+                    <label for="login-username">Username:</label>
+                    <input type="text" id="login-username" name="username" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password:</label>
+                    <input type="password" id="login-password" name="password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            </form>
+            <div style="text-align: center; margin-top: 1rem;">
+                <p>Don't have an account? <a href="#" id="showRegisterLink">Register here</a></p>
+            </div>
         </div>
     </div>
+
+    <!-- 注册模态框 -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" data-modal="registerModal">&times;</span>
+            <h2>Join FurryFriends</h2>
+            <form id="registerForm" method="POST" action="{{ url_for('main.register') }}">
+                <div class="form-group">
+                    <label for="register-username">Username:</label>
+                    <input type="text" id="register-username" name="username" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password:</label>
+                    <input type="password" id="register-password" name="password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Register</button>
+            </form>
+            <div style="text-align: center; margin-top: 1rem;">
+                <p>Already have an account? <a href="#" id="showLoginLink">Login here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 上传图片模态框 -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" data-modal="uploadModal">&times;</span>
+            <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem; color: white;">Upload Pet Image</h2>
+            <form id="uploadForm" method="POST" action="{{ url_for('main.upload_image') }}" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="pet-image" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Choose Image:</label>
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">📁</div>
+                        <p style="margin: 0.5rem 0; font-size: 1rem;">Click to select image</p>
+                        <p style="font-size: 0.8rem; color: #ccc; margin: 0;">Max 10MB - JPG, PNG, GIF</p>
+                    </div>
+                    <input type="file" id="pet-image" name="image" accept="image/*" style="display: none;" required>
+                </div>
+
+                <!-- 文件预览区域 -->
+                <div id="filePreview" style="display: none; margin: 1rem 0;">
+                    <h4 style="margin-bottom: 0.5rem; color: white;">Selected File:</h4>
+                    <div id="selectedFile" class="file-item" style="display: flex; align-items: center; padding: 0.5rem; border-radius: 6px; margin-bottom: 0.5rem;">
+                        <button type="button" id="removeFileBtn" style="background: #ff6b6b; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; margin-right: 0.5rem; cursor: pointer;">×</button>
+                        <span id="fileName" style="flex: 1; margin-right: 0.5rem; font-size: 0.9rem; color: white;"></span>
+                        <img id="fileThumbnail" src="" alt="Thumbnail" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; cursor: pointer;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="caption" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Caption (optional):</label>
+                    <textarea id="caption" name="caption" class="form-control" rows="3" placeholder="Describe your adorable pet..." style="min-height: 80px;"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Upload Image</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 图片详情模态框 - 移除了关闭按钮 -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content image-modal-content">
+            <!-- 移除了关闭按钮，支持点击图片关闭 -->
+            <img id="modalImage" src="" alt="Full size image" style="max-width: 100%; max-height: 80vh; border-radius: 8px; cursor: pointer;">
+            <div id="modalCaption" style="text-align: center; margin-top: 1rem; font-style: italic;"></div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
