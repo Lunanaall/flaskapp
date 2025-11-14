@@ -7,12 +7,12 @@
     </div>
 </div>
 
-<!-- 使用与Home页面相同的图片网格布局 -->
+<!-- Use the same image grid layout as Home page -->
 <div class="gallery">
     {% if images %}
         {% for image in images %}
         <div class="gallery-item" data-original-url="{{ image.originalURL }}" data-caption="{{ image.caption }}">
-            <!-- 使用缩略图，如果没有缩略图则使用原图 -->
+            <!-- Use thumbnail, if no thumbnail use original image -->
             <img src="{{ image.thumbnailURL or image.originalURL }}" alt="{{ image.caption }}" class="thumbnail">
             {% if image.caption %}
             <div class="image-caption">{{ image.caption }}</div>
