@@ -1,4 +1,4 @@
-/* 色彩变量 */
+/* colors */
 :root {
     --medium-purple: #9370DB;
     --bright-purple: #8A2BE2;
@@ -12,14 +12,14 @@
     --border-gray: #dddddd;
 }
 
-/* 基础重置 */
+/* basic reset */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* 整体页面布局 - 白色背景 + 右侧猫猫头 */
+/* Overall page layout - white background + cat head on the right */
 body {
     font-family: 'Times New Roman', Times, serif;
     background: var(--white) url('../images/cat-background.jpg') no-repeat fixed right center;
@@ -30,7 +30,7 @@ body {
     flex-direction: column;
 }
 
-/* 固定导航栏 */
+/* Fixed navigation bar */
 .navbar {
     background: #2c3e50;
     padding: 0.8rem 2rem;
@@ -51,7 +51,7 @@ body {
     align-items: center;
 }
 
-/* 导航栏品牌 */
+/* Navbar Brand */
 .nav-brand {
     font-size: 1.5rem;
     font-weight: bold;
@@ -59,7 +59,7 @@ body {
     text-decoration: none;
 }
 
-/* 导航链接 */
+/* Navigation Link */
 .nav-links {
     display: flex;
     gap: 1.5rem;
@@ -92,7 +92,7 @@ body {
     border-radius: 25px;
 }
 
-/* 主内容区域 */
+/*main content */
 .main-content {
     margin-top: 70px;
     flex: 1;
@@ -101,7 +101,7 @@ body {
     z-index: 1;
 }
 
-/* 容器样式 */
+/* container css */
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -112,7 +112,7 @@ body {
     border: 1px solid var(--border-gray);
 }
 
-/* 页面头部样式 */
+/* page-header css */
 .page-header {
     text-align: center;
     margin-bottom: 2rem;
@@ -131,7 +131,7 @@ body {
     font-size: 1.1rem;
 }
 
-/* 用户欢迎区域 */
+/* welcome area */
 .user-welcome h1 {
     color: var(--text-gray);
     margin: 0 0 0.25rem 0;
@@ -153,7 +153,7 @@ body {
     padding-left: 1rem;
 }
 
-/* 图片网格 - 与Home页面一致 */
+/* Image grid - consistent with the Home page */
 .image-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -218,7 +218,7 @@ body {
     font-size: 0.85rem;
 }
 
-/* 空状态样式 */
+/*Empty state style */
 .empty-state {
     grid-column: 1 / -1;
     background: var(--light-gray);
@@ -232,7 +232,7 @@ body {
     background: var(--lavender);
 }
 
-/* 模态框样式 */
+/* Modal Style */
 .modal {
     display: none;
     position: fixed;
@@ -266,7 +266,7 @@ body {
     z-index: 2001;
 }
 
-/* 图片模态框专用样式 */
+/* Styles for Image Modal */
 .image-modal-content {
     max-width: 95vw !important;
     max-height: 95vh !important;
@@ -315,7 +315,7 @@ body {
     transform: scale(1.1);
 }
 
-/* 表单样式 */
+/* form style */
 .form-group {
     margin-bottom: 1.5rem;
 }
@@ -370,7 +370,7 @@ body {
     background: #cccccc;
 }
 
-/* 上传区域 */
+/* upload area */
 .upload-area {
     border: 2px dashed var(--border-gray);
     border-radius: 10px;
@@ -392,7 +392,7 @@ body {
     margin-bottom: 0.5rem;
 }
 
-/* 文件预览样式 */
+/* File Preview Style */
 .file-item {
     display: flex;
     align-items: center;
@@ -422,7 +422,7 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-/* 全局弹窗样式 */
+/* Global popup style */
 #globalPopup {
     display: none;
     position: fixed;
@@ -445,7 +445,7 @@ body {
     font-size: 1.1rem;
 }
 
-/* 闪存消息样式 */
+/* Flash Message Style */
 .flash-messages {
     margin-bottom: 2rem;
 }
@@ -476,7 +476,7 @@ body {
     border: 1px solid #c3e6cb;
 }
 
-/* 缩略图样式 */
+/* Thumbnail Style */
 .thumbnail {
     width: 100%;
     height: 200px;
@@ -484,7 +484,7 @@ body {
     border-radius: 8px 8px 0 0;
 }
 
-/* 响应式设计 */
+/* Responsive Design */
 @media (max-width: 768px) {
     .nav-container {
         flex-direction: column;
@@ -526,7 +526,7 @@ body {
         height: 200px;
     }
 
-    /* 上传模态框移动端优化 */
+    /*Upload modal optimization for mobile */
     #uploadModal .modal-content {
         width: 95vw;
         margin: 10px;
@@ -547,7 +547,7 @@ body {
         margin: 0.25rem 0;
     }
 
-    /* 图片模态框移动端优化 */
+    /* Image modal optimization for mobile */
     .image-modal-content {
         padding: 0.5rem;
         margin: 1rem auto;
@@ -585,7 +585,7 @@ body {
         font-size: 0.9rem;
     }
 
-    /* 上传模态框小屏优化 */
+    /* Upload modal small screen optimization */
     #uploadModal .modal-content {
         padding: 1rem;
     }
@@ -604,7 +604,7 @@ body {
         min-height: 60px;
     }
 
-    /* 文件预览小屏优化 */
+    /* File Preview Mini-Screen Optimization */
     .file-item {
         flex-direction: column;
         align-items: flex-start;
