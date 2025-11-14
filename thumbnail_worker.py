@@ -24,7 +24,7 @@ def generate_thumbnails():
             sslmode='require'
         )
 
-        # 修改查询条件：查找 thumbnailURL 为 NULL 或空字符串的图片
+        # Find images where thumbnailURL is NULL or an empty string
         cursor = conn.cursor()
         cursor.execute('SELECT imageid, originalurl FROM "Image Metadata" WHERE thumbnailurl IS NULL OR thumbnailurl = \'\'')
         pending_images = cursor.fetchall()
