@@ -5,13 +5,13 @@
     <h1>🐾 Public Gallery - Pet's Adorable Moments</h1>
 </div>
 
-<!-- 图片网格 -->
+<!-- Image Grid -->
 <div class="image-grid">
     {% for image in images %}
     <div class="gallery-item"
          data-original-url="{{ image.originalURL }}"
          data-caption="{{ image.caption or 'Pet Image' }}">
-        <!-- 显示缩略图，点击查看原图 -->
+        <!-- Display thumbnail, click to view original image -->
         <img src="{{ image.thumbnailURL or image.originalURL }}"
              alt="{{ image.caption or 'Pet Image' }}"
              onerror="this.src='{{ url_for('static', filename='images/placeholder.svg') }}'"
