@@ -8,7 +8,7 @@ const AppState = {
 
 // Utility Functions
 const Utils = {
-    // 显示全局弹窗 - 1秒后消失
+    // Show global popup - disappears after 1 second
     showPopup(message, duration = 1000) {
         const popup = document.getElementById('globalPopup');
         const messageEl = document.getElementById('popupMessage');
@@ -23,7 +23,7 @@ const Utils = {
         }
     },
 
-    // 自动隐藏Flash消息 - 1秒后消失
+    // Auto-hide flash messages - disappear after 1 second
     autoHideFlashMessages() {
         const flashMessages = document.querySelectorAll('.flash-message');
         flashMessages.forEach(message => {
@@ -33,13 +33,13 @@ const Utils = {
         });
     },
 
-    // 检查是否在首页
+    // Check if on home page
     isHomePage() {
         const currentPath = window.location.pathname;
         return currentPath === '/' || currentPath === '/index' || currentPath === '';
     },
 
-    // 检查是否在MyImages页面
+    // Check if on MyImages page
     isMyImagesPage() {
         const currentPath = window.location.pathname;
         return currentPath === '/images';
@@ -48,7 +48,7 @@ const Utils = {
 
 // Modal Controller
 const ModalController = {
-    // 打开模态框
+    // Open modal
     openModal(modalId) {
         const modal = document.getElementById(modalId);
         if (modal) {
@@ -57,7 +57,7 @@ const ModalController = {
         }
     },
 
-    // 关闭模态框
+    // Close modal
     closeModal(modalId) {
         const modal = document.getElementById(modalId);
         if (modal) {
@@ -66,19 +66,19 @@ const ModalController = {
         }
     },
 
-    // 打开登录模态框
+    // Open login modal
     openLoginModal() {
         this.openModal('loginModal');
         this.closeModal('registerModal');
     },
 
-    // 打开注册模态框
+    // Open register modal
     openRegisterModal() {
         this.openModal('registerModal');
         this.closeModal('loginModal');
     },
 
-    // 打开上传模态框
+    // Open upload modal
     openUploadModal() {
         fetch('/api/check-auth')
             .then(response => response.json())
@@ -86,7 +86,7 @@ const ModalController = {
                 if (data.authenticated) {
                     this.openModal('uploadModal');
                 } else {
-                    // 只显示提示，不打开登录模态框
+                    // Only show prompt, don't open login modal
                     Utils.showPopup('Please login first', 1000);
                 }
             })
@@ -96,26 +96,26 @@ const ModalController = {
             });
     },
 
-    // 关闭上传模态框
+    // Close upload modal
     closeUploadModal() {
         this.closeModal('uploadModal');
     },
 
-    // 切换到注册表单
+    // Switch to register form
     switchToRegister() {
         this.closeModal('loginModal');
         this.openRegisterModal();
     },
 
-    // 切换到登录表单
+    // Switch to login form
     switchToLogin() {
         this.closeModal('registerModal');
         this.openLoginModal();
     },
 
-    // 初始化模态框事件
+    // Initialize modal events
     initModalEvents() {
-        // 关闭按钮事件（排除图片模态框）
+        // Close button events (excluding image modal)
         document.querySelectorAll('.close-modal').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const modalId = btn.getAttribute('data-modal');
@@ -125,14 +125,14 @@ const ModalController = {
             });
         });
 
-        // 点击模态框外部关闭
+        // Close modal when clicking outside
         window.addEventListener('click', (e) => {
             if (e.target.classList.contains('modal')) {
                 this.closeModal(e.target.id);
             }
         });
 
-        // 登录/注册切换链接
+        // Login/register switch links
         const showRegisterLink = document.getElementById('showRegisterLink');
         const showLoginLink = document.getElementById('showLoginLink');
 
@@ -150,7 +150,7 @@ const ModalController = {
             });
         }
 
-        // 初始化登录链接点击事件
+        // Initialize login link click event
         const loginLink = document.getElementById('loginLink');
         if (loginLink) {
             loginLink.addEventListener('click', (e) => {
@@ -163,7 +163,7 @@ const ModalController = {
 
 // Image Modal Controller
 const ImageModalController = {
-    // 打开图片模态框
+    // Open image modal
     openImageModal(imageUrl, caption) {
         const modal = document.getElementById('imageModal');
         const modalImage = document.getElementById('modalImage');
@@ -174,7 +174,7 @@ const ImageModalController = {
             modalCaption.textContent = caption;
             modal.style.display = 'flex';
 
-            // 点击图片关闭模态框
+            // Close modal when clicking on image
             modalImage.onclick = (e) => {
                 e.stopPropagation();
                 this.closeImageModal();
@@ -182,14 +182,14 @@ const ImageModalController = {
         }
     },
 
-    // 关闭图片模态框
+    // Close image modal
     closeImageModal() {
         ModalController.closeModal('imageModal');
     },
 
-    // 初始化图片点击事件
+    // Initialize image click events
     initImageEvents() {
-        // 为上传预览的缩略图添加点击事件
+        // Add click event for upload preview thumbnail
         const fileThumbnail = document.getElementById('fileThumbnail');
         if (fileThumbnail) {
             fileThumbnail.addEventListener('click', () => {
@@ -199,7 +199,7 @@ const ImageModalController = {
             });
         }
 
-        // 为页面中的图片添加点击事件
+        // Add click events for images on the page
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('thumbnail') ||
                 (e.target.closest('.gallery-item') && e.target.tagName === 'IMG')) {
@@ -216,7 +216,7 @@ const ImageModalController = {
 
 // Upload Controller
 const UploadController = {
-    // 处理文件选择
+    // Handle file selection
     handleFileSelect(input) {
         const filePreview = document.getElementById('filePreview');
         const fileName = document.getElementById('fileName');
@@ -226,24 +226,24 @@ const UploadController = {
         if (input.files && input.files[0]) {
             const file = input.files[0];
 
-            // 验证文件大小
+            // Validate file size
             if (file.size > 10 * 1024 * 1024) {
                 Utils.showPopup('File size cannot exceed 10MB');
                 input.value = '';
                 return;
             }
 
-            // 验证文件类型
+            // Validate file type
             if (!file.type.match('image.*')) {
                 Utils.showPopup('Please select image files (JPG, PNG, GIF)');
                 input.value = '';
                 return;
             }
 
-            // 显示文件名
+            // Display file name
             fileName.textContent = file.name;
 
-            // 创建缩略图
+            // Create thumbnail
             const reader = new FileReader();
             reader.onload = (e) => {
                 fileThumbnail.src = e.target.result;
@@ -255,7 +255,7 @@ const UploadController = {
         }
     },
 
-    // 移除选择的文件
+    // Remove selected file
     removeSelectedFile() {
         const filePreview = document.getElementById('filePreview');
         const fileInput = document.getElementById('pet-image');
@@ -265,7 +265,7 @@ const UploadController = {
         AppState.selectedFile = null;
     },
 
-    // 初始化上传事件
+    // Initialize upload events
     initUploadEvents() {
         const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('pet-image');
@@ -287,7 +287,7 @@ const UploadController = {
             });
         }
 
-        // 上传表单提交
+        // Upload form submission
         const uploadForm = document.getElementById('uploadForm');
         if (uploadForm) {
             uploadForm.addEventListener('submit', (e) => {
@@ -304,7 +304,7 @@ const UploadController = {
 
 // Form Controller
 const FormController = {
-    // AJAX登录
+    // AJAX login
     async submitLoginForm(event) {
         event.preventDefault();
 
@@ -336,7 +336,7 @@ const FormController = {
         }
     },
 
-    // AJAX注册
+    // AJAX register
     async submitRegisterForm(event) {
         event.preventDefault();
 
@@ -368,7 +368,7 @@ const FormController = {
         }
     },
 
-    // 初始化表单事件
+    // Initialize form events
     initFormEvents() {
         const loginForm = document.getElementById('loginForm');
         const registerForm = document.getElementById('registerForm');
@@ -385,9 +385,9 @@ const FormController = {
 
 // Navigation Controller
 const NavigationController = {
-    // 初始化导航事件
+    // Initialize navigation events
     initNavigationEvents() {
-        // Home链接处理
+        // Home link handling
         const homeLinks = document.querySelectorAll('#homeLink, #homeNavLink');
         homeLinks.forEach(link => {
             link.addEventListener('click', (e) => {
@@ -398,7 +398,7 @@ const NavigationController = {
             });
         });
 
-        // MyImages链接处理 - JS做中间人验证
+        // MyImages link handling - JS middleware validation
         const myImagesLink = document.getElementById('myImagesLink');
         if (myImagesLink) {
             myImagesLink.addEventListener('click', (e) => {
@@ -408,16 +408,16 @@ const NavigationController = {
                     return;
                 }
                 
-                e.preventDefault(); // 立即阻止任何默认跳转
+                e.preventDefault(); // Immediately prevent any default navigation
                 
                 fetch('/api/check-auth')
                     .then(response => response.json())
                     .then(data => {
                         if (data.authenticated) {
-                            // 验证通过：JS控制跳转
+                            // Validation passed: JS-controlled navigation
                             window.location.href = myImagesLink.href;
                         } else {
-                            // 验证不通过：只显示提示，不打开模态框
+                            // Validation failed: only show prompt, don't open modal
                             Utils.showPopup('Please login first', 1000);
                         }
                     })
@@ -428,7 +428,7 @@ const NavigationController = {
             });
         }
 
-        // Upload链接处理
+        // Upload link handling
         const uploadLink = document.getElementById('uploadLink');
         if (uploadLink) {
             uploadLink.addEventListener('click', (e) => {
@@ -489,7 +489,7 @@ const DragDropController = {
 
 // Main initialization
 document.addEventListener('DOMContentLoaded', function() {
-    // 初始化所有功能
+    // Initialize all functionality
     Utils.autoHideFlashMessages();
     ModalController.initModalEvents();
     ImageModalController.initImageEvents();
