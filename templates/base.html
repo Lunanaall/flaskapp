@@ -6,28 +6,28 @@
     <title>FurryFriends - Share Your Pet's Adorable Moments</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <style>
-        /* 全局黑色加粗字体 */
+        /* Global bold black font */
         body {
             font-weight: bold;
             color: #000;
         }
 
-        /* 全局弹窗样式 - 新设计 */
+        /* Global popup styles - new design */
         #globalPopup {
             display: none;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.85); /* 半透明黑色背景 */
+            background: rgba(0, 0, 0, 0.85); /* Semi-transparent black background */
             color: white;
             padding: 20px 30px;
             border-radius: 8px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.5);
             z-index: 10000;
-            border: 3px solid #000; /* 黑色粗边框 */
+            border: 3px solid #000; /* Black thick border */
             text-align: center;
-            font-weight: bold; /* 粗体字 */
+            font-weight: bold; /* Bold text */
             font-size: 1.1rem;
         }
 
@@ -68,7 +68,7 @@
             color: #333;
         }
 
-        /* Flash消息样式 - 统一新样式 */
+        /* Flash message styles - unified new style */
         .flash-message {
             background: rgba(0, 0, 0, 0.85);
             color: white;
@@ -82,9 +82,9 @@
             transition: opacity 0.5s ease;
         }
 
-        /* 导航栏样式 */
+        /* Navigation bar styles */
         .navbar {
-            background: #2c3e50; /* 导航栏背景色 */
+            background: #2c3e50; /* Navigation bar background color */
             padding: 1rem 0;
             position: sticky;
             top: 0;
@@ -104,7 +104,7 @@
         .nav-brand {
             font-size: 1.5rem;
             font-weight: bold;
-            color: white; /* 白色字体 */
+            color: white; /* White font */
             text-decoration: none;
         }
 
@@ -117,59 +117,59 @@
         }
 
         .nav-link {
-            color: white; /* 白色字体 */
+            color: white; /* White font */
             text-decoration: none;
             padding: 8px 16px;
             border-radius: 0;
             transition: all 0.3s ease;
-            font-weight: bold; /* 加粗 */
-            border: 2px solid transparent; /* 透明边框 */
+            font-weight: bold; /* Bold */
+            border: 2px solid transparent; /* Transparent border */
         }
 
-        /* 悬停效果 - 椭圆形框，字体变黑色，边框变黑色 */
+        /* Hover effect - oval frame, black font, black border */
         .nav-link:hover {
             background: rgba(255, 255, 255, 0.2);
-            border: 2px solid #000; /* 黑色边框 */
+            border: 2px solid #000; /* Black border */
             border-radius: 25px;
             transform: scale(1.05);
-            color: #000 !important; /* 黑色字体 */
+            color: #000 !important; /* Black font */
         }
 
-        /* 活动页面效果 - 字体变黑色，边框变黑色 */
+        /* Active page effect - black font, black border */
         .nav-link.active {
             background: rgba(255, 255, 255, 0.3);
-            border: 2px solid #000; /* 黑色边框 */
+            border: 2px solid #000; /* Black border */
             border-radius: 25px;
-            color: #000 !important; /* 黑色字体 */
+            color: #000 !important; /* Black font */
         }
 
-        /* 上传模态框使用导航栏样式 */
+        /* Upload modal uses navigation bar style */
         #uploadModal .modal-content {
             max-width: 500px;
             width: 90vw;
             max-height: 90vh;
             overflow-y: auto;
             margin: 20px;
-            background: #2c3e50; /* 导航栏背景色 */
-            color: white; /* 白色字体 */
+            background: #2c3e50; /* Navigation bar background color */
+            color: white; /* White font */
         }
 
-        /* 上传区域使用导航栏样式的虚线 */
+        /* Upload area uses navigation bar style dashed border */
         .upload-area {
             min-height: 120px;
             padding: 2rem 1rem;
             cursor: pointer;
-            border: 2px dashed #2c3e50; /* 导航栏背景色的虚线 */
+            border: 2px dashed #2c3e50; /* Navigation bar background color dashed border */
             border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1); /* 半透明背景 */
+            background: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
             text-align: center;
             transition: all 0.3s ease;
-            color: white; /* 白色字体 */
+            color: white; /* White font */
         }
 
         .upload-area:hover {
             transform: scale(1.02);
-            border-color: #34495e; /* 稍深的导航栏颜色 */
+            border-color: #34495e; /* Slightly darker navigation bar color */
             background: rgba(255, 255, 255, 0.2);
         }
 
@@ -198,11 +198,11 @@
             resize: vertical;
         }
 
-        /* 上传按钮使用导航栏样式 */
+        /* Upload button uses navigation bar style */
         .btn-primary {
             margin-top: 1rem;
             padding: 0.75rem 1.5rem;
-            background: #34495e; /* 导航栏深色 */
+            background: #34495e; /* Navigation bar dark color */
             color: white;
             border: none;
             border-radius: 4px;
@@ -214,17 +214,17 @@
         }
 
         .btn-primary:hover {
-            background: #2c3e50; /* 导航栏主色 */
+            background: #2c3e50; /* Navigation bar main color */
             transform: scale(1.02);
         }
 
-        /* 上传模态框内的标签样式 */
+        /* Labels inside upload modal */
         #uploadModal label {
             color: white;
             font-weight: bold;
         }
 
-        /* 文件预览样式 */
+        /* File preview styles */
         .file-item {
             transition: all 0.3s ease;
             background: rgba(255, 255, 255, 0.1);
@@ -243,7 +243,7 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
-        /* 图片模态框样式 */
+        /* Image modal styles */
         .image-modal-content {
             max-width: 95vw;
             max-height: 95vh;
@@ -269,7 +269,7 @@
             cursor: pointer;
         }
 
-        /* 确保在移动端也有良好显示 */
+        /* Ensure good display on mobile */
         @media (max-width: 768px) {
             .nav-container {
                 flex-direction: column;
@@ -318,7 +318,7 @@
     </style>
 </head>
 <body>
-    <!-- 固定导航栏 -->
+    <!-- Fixed navigation bar -->
     <nav class="navbar">
         <div class="nav-container">
             <a href="{{ url_for('main.index') }}" class="nav-brand" id="homeLink">FurryFriends</a>
@@ -335,12 +335,12 @@
         </div>
     </nav>
 
-    <!-- 全局弹窗 -->
+    <!-- Global popup -->
     <div id="globalPopup">
         <span id="popupMessage"></span>
     </div>
 
-    <!-- 主内容区域 -->
+    <!-- Main content area -->
     <main class="main-content">
         <div class="container">
             <div id="flashMessages">
@@ -356,7 +356,7 @@
         </div>
     </main>
 
-    <!-- 登录模态框 -->
+    <!-- Login modal -->
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" data-modal="loginModal">&times;</span>
@@ -378,7 +378,7 @@
         </div>
     </div>
 
-    <!-- 注册模态框 -->
+    <!-- Register modal -->
     <div id="registerModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" data-modal="registerModal">&times;</span>
@@ -400,7 +400,7 @@
         </div>
     </div>
 
-    <!-- 上传图片模态框 -->
+    <!-- Upload image modal -->
     <div id="uploadModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" data-modal="uploadModal">&times;</span>
@@ -416,7 +416,7 @@
                     <input type="file" id="pet-image" name="image" accept="image/*" style="display: none;" required>
                 </div>
 
-                <!-- 文件预览区域 -->
+                <!-- File preview area -->
                 <div id="filePreview" style="display: none; margin: 1rem 0;">
                     <h4 style="margin-bottom: 0.5rem; color: white;">Selected File:</h4>
                     <div id="selectedFile" class="file-item" style="display: flex; align-items: center; padding: 0.5rem; border-radius: 6px; margin-bottom: 0.5rem;">
@@ -435,10 +435,10 @@
         </div>
     </div>
 
-    <!-- 图片详情模态框 - 移除了关闭按钮 -->
+    <!-- Image detail modal - removed close button -->
     <div id="imageModal" class="modal">
         <div class="modal-content image-modal-content">
-            <!-- 移除了关闭按钮，支持点击图片关闭 -->
+            <!-- Removed close button, supports clicking image to close -->
             <img id="modalImage" src="" alt="Full size image" style="max-width: 100%; max-height: 80vh; border-radius: 8px; cursor: pointer;">
             <div id="modalCaption" style="text-align: center; margin-top: 1rem; font-style: italic;"></div>
         </div>
