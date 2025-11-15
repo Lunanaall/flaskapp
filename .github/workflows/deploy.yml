@@ -30,4 +30,4 @@ jobs:
           git pull https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git main
           source venv/bin/activate
           pip install -r requirements.txt
-          sudo systemctl restart flaskapp
+          sudo systemctl restart gunicorn
