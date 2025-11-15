@@ -227,15 +227,15 @@ const UploadController = {
             const file = input.files[0];
 
             // Validate file size
-            if (file.size > 10 * 1024 * 1024) {
-                Utils.showPopup('File size cannot exceed 10MB');
+            if (file.size > 20 * 1024 * 1024) {
+                Utils.showPopup('File size cannot exceed 20MB');
                 input.value = '';
                 return;
             }
 
             // Validate file type
             if (!file.type.match('image.*')) {
-                Utils.showPopup('Please select image files (JPG, PNG, GIF)');
+                Utils.showPopup('Please select image files (JPG, PNG, GIF, BMP, WebP)');
                 input.value = '';
                 return;
             }
